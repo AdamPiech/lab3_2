@@ -19,6 +19,7 @@ public class NewsLoaderTest {
 
     private ConfigurationLoader configurationLoader;
 	private NewsReader newsReader;
+	private NewsLoader newsLoader;
 	
 	@Before
 	public void start() {
@@ -28,10 +29,12 @@ public class NewsLoaderTest {
 		when(ConfigurationLoader.getInstance()).thenReturn(configurationLoader);
 		
 		newsReader = mock(NewsReader.class);
-//		when(newsReader.read()).thenReturn(new IncomingNews());
+		when(newsReader.read()).thenReturn(new IncomingNews());
 		
 		mockStatic(NewsReaderFactory.class);
 		when(NewsReaderFactory.getReader(Mockito.anyString())).thenReturn(newsReader);
+		
+		newsLoader = new NewsLoader();
 	}
 
 	@Test
@@ -42,7 +45,6 @@ public class NewsLoaderTest {
         incomingNews.add(new IncomingInfo("Subsciption non type.", SubsciptionType.NONE));
 
         when(newsReader.read()).thenReturn(incomingNews);
-        NewsLoader newsLoader = new NewsLoader();
         PublishableNews publishableNews = newsLoader.loadNews();
         assertThat(publishableNews.getPublicContent().size(), is(1));
 	}
@@ -54,10 +56,15 @@ public class NewsLoaderTest {
         incomingNews.add(new IncomingInfo("Subsciption type C.", SubsciptionType.C));
         incomingNews.add(new IncomingInfo("Subsciption non type.", SubsciptionType.NONE));
 
-
         when(newsReader.read()).thenReturn(incomingNews);
-        NewsLoader newsLoader = new NewsLoader();
         PublishableNews publishableNews = newsLoader.loadNews();
         assertThat(publishableNews.getSubscribentContent().size(), is(2));
 	}
+	
+    @Test
+    public void behaviorTest() {
+        newsLoader.loadNews();
+        Mockito.verify(configurationLoader, Mockito.times(1)).loadConfiguration();
+        Mockito.verify(newsReader, Mockito.times(1)).read();
+    }
 }
