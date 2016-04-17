@@ -14,57 +14,57 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import edu.iis.mto.staticmock.reader.NewsReader;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({ConfigurationLoader.class, NewsReaderFactory.class})
+@PrepareForTest({ ConfigurationLoader.class, NewsReaderFactory.class })
 public class NewsLoaderTest {
 
-    private ConfigurationLoader configurationLoader;
+	private ConfigurationLoader configurationLoader;
 	private NewsReader newsReader;
 	private NewsLoader newsLoader;
-	
+
 	@Before
 	public void start() {
 		configurationLoader = mock(ConfigurationLoader.class);
 		when(configurationLoader.loadConfiguration()).thenReturn(new Configuration());
 		mockStatic(ConfigurationLoader.class);
 		when(ConfigurationLoader.getInstance()).thenReturn(configurationLoader);
-		
+
 		newsReader = mock(NewsReader.class);
 		when(newsReader.read()).thenReturn(new IncomingNews());
-		
+
 		mockStatic(NewsReaderFactory.class);
 		when(NewsReaderFactory.getReader(Mockito.anyString())).thenReturn(newsReader);
-		
+
 		newsLoader = new NewsLoader();
 	}
 
 	@Test
-	public void publicNewsTest () {
-        IncomingNews incomingNews = new IncomingNews();
-        incomingNews.add(new IncomingInfo("Subsciption type A.", SubsciptionType.A));
-        incomingNews.add(new IncomingInfo("Subsciption type C.", SubsciptionType.C));
-        incomingNews.add(new IncomingInfo("Subsciption non type.", SubsciptionType.NONE));
+	public void publicNewsTest() {
+		IncomingNews incomingNews = new IncomingNews();
+		incomingNews.add(new IncomingInfo("Subsciption type A.", SubsciptionType.A));
+		incomingNews.add(new IncomingInfo("Subsciption type C.", SubsciptionType.C));
+		incomingNews.add(new IncomingInfo("Subsciption non type.", SubsciptionType.NONE));
 
-        when(newsReader.read()).thenReturn(incomingNews);
-        PublishableNews publishableNews = newsLoader.loadNews();
-        assertThat(publishableNews.getPublicContent().size(), is(1));
+		when(newsReader.read()).thenReturn(incomingNews);
+		PublishableNews publishableNews = newsLoader.loadNews();
+		assertThat(publishableNews.getPublicContent().size(), is(1));
 	}
-	
+
 	@Test
-	public void subscriberNewsTest () {
-        IncomingNews incomingNews = new IncomingNews();
-        incomingNews.add(new IncomingInfo("Subsciption type A.", SubsciptionType.A));
-        incomingNews.add(new IncomingInfo("Subsciption type C.", SubsciptionType.C));
-        incomingNews.add(new IncomingInfo("Subsciption non type.", SubsciptionType.NONE));
+	public void subscriberNewsTest() {
+		IncomingNews incomingNews = new IncomingNews();
+		incomingNews.add(new IncomingInfo("Subsciption type A.", SubsciptionType.A));
+		incomingNews.add(new IncomingInfo("Subsciption type C.", SubsciptionType.C));
+		incomingNews.add(new IncomingInfo("Subsciption non type.", SubsciptionType.NONE));
 
-        when(newsReader.read()).thenReturn(incomingNews);
-        PublishableNews publishableNews = newsLoader.loadNews();
-        assertThat(publishableNews.getSubscribentContent().size(), is(2));
+		when(newsReader.read()).thenReturn(incomingNews);
+		PublishableNews publishableNews = newsLoader.loadNews();
+		assertThat(publishableNews.getSubscribentContent().size(), is(2));
 	}
-	
-    @Test
-    public void behaviorTest() {
-        newsLoader.loadNews();
-        Mockito.verify(configurationLoader, Mockito.times(1)).loadConfiguration();
-        Mockito.verify(newsReader, Mockito.times(1)).read();
-    }
+
+	@Test
+	public void behaviorTest() {
+		newsLoader.loadNews();
+		Mockito.verify(configurationLoader, Mockito.times(1)).loadConfiguration();
+		Mockito.verify(newsReader, Mockito.times(1)).read();
+	}
 }
